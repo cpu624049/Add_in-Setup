@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>DetailFilterTest</Name>
+    <Assembly>DetailFilterTest.dll</Assembly>
+    <FullClassName>DetailFilterTest.Application</FullClassName>
+    <ClientId>e8a691da-d4d5-40ee-8ab4-a28a36c5b48b</ClientId>
+    <VendorId>DetailFilterTest</VendorId>
+    <VendorDescription>DetailFilterTest</VendorDescription>
+  </AddIn>
+</RevitAddIns>
