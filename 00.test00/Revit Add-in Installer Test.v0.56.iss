@@ -1,10 +1,10 @@
 [Setup]
 AppName=Revit Add-in Installer Test
-AppVersion={{VERSION}}
+AppVersion=0.56
 DefaultDirName={userappdata}\RevitAddinInstallerTest
 DisableDirPage=yes
 OutputDir=\\idea\home\test
-OutputBaseFilename=Revit Add-in Installer Test.v{{VERSION}}
+OutputBaseFilename=Revit Add-in Installer Test.v0.56
 Compression=lzma
 SolidCompression=yes
 
@@ -95,7 +95,7 @@ var
 begin
   if CurStep = ssPostInstall then
   begin
-    AppVer := '{{VERSION}}';
+    AppVer := '0.56';
     AppName := 'Revit Add-in Installer Test';
     LogPath := ExpandConstant('{userappdata}') + '\Autodesk\Revit\Addins\' + AppName + 'install_log.txt';
     TimeStamp := GetDateTimeString('yyyy-mm-dd hh:nn:ss','-',':');
