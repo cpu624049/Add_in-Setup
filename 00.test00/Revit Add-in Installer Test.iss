@@ -22,6 +22,9 @@ Source: "Addins\R23\*"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2023"; Fla
 Source: "Addins\R24\*"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2024"; Flags: ignoreversion; Check: IsR24Installed
 Source: "Addins\R25\*"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2025"; Flags: ignoreversion; Check: IsR25Installed
 
+[Languages]
+Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
+
 [Code]
 // ✅ Addins 폴더 존재 여부로 Revit 설치 여부 판단
 function IsAddinsFolderExists(version: string): Boolean;
