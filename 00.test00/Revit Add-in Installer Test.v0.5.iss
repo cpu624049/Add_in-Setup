@@ -1,10 +1,10 @@
 [Setup]
 AppName=Revit Add-in Installer Test
-AppVersion=0.22
+AppVersion=0.5
 DefaultDirName={userappdata}\RevitAddinInstallerTest
 DisableDirPage=yes
 OutputDir=\\idea\home\test
-OutputBaseFilename=Revit Add-in Installer Test.v0.22
+OutputBaseFilename=Revit Add-in Installer Test.v0.5
 Compression=lzma
 SolidCompression=yes
 
@@ -14,6 +14,7 @@ Name: r22; Description: "Revit 2022 Add-in 설치"; GroupDescription: "설치할
 Name: r23; Description: "Revit 2023 Add-in 설치"; GroupDescription: "설치할 Revit 버전을 선택하세요:"
 Name: r24; Description: "Revit 2024 Add-in 설치"; GroupDescription: "설치할 Revit 버전을 선택하세요:"
 Name: r25; Description: "Revit 2025 Add-in 설치"; GroupDescription: "설치할 Revit 버전을 선택하세요:"
+Name: r26; Description: "Revit 2026 Add-in 설치"; GroupDescription: "설치할 Revit 버전을 선택하세요:"
 
 [Files]
 Source: "Addins\R21\*"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2021"; Flags: ignoreversion; Check: IsR21Installed
@@ -21,6 +22,10 @@ Source: "Addins\R22\*"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2022"; Fla
 Source: "Addins\R23\*"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2023"; Flags: ignoreversion; Check: IsR23Installed
 Source: "Addins\R24\*"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2024"; Flags: ignoreversion; Check: IsR24Installed
 Source: "Addins\R25\*"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2025"; Flags: ignoreversion; Check: IsR25Installed
+Source: "Addins\R26\*"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2026"; Flags: ignoreversion; Check: IsR25Installed
+
+[Languages]
+Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
 
 [Code]
 // ✅ Addins 폴더 존재 여부로 Revit 설치 여부 판단
@@ -58,31 +63,104 @@ begin
   Result := IsTaskSelected('r25') and IsAddinsFolderExists('2025');
 end;
 
-// ✅ Task 페이지 이후 넘어갈 때 설치 대상 존재 여부 확인
+function IsR26Installed(): Boolean;
+begin
+  Result := IsTaskSelected('r26') and IsAddinsFolderExists('2026');
+end;
+
+// ✅ Task 이름으로 인덱스 찾는 함수
+function GetTaskIndexByName(const TaskName: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to WizardForm.TasksList.Items.Count - 1 do
+  begin
+    if WizardForm.TasksList.Items[I] = TaskName then
+    begin
+      Result := I;
+      Exit;
+    end;
+  end;
+end;
+
+// ✅ Task 페이지 이후 넘어갈 때 설치 대상 존재 여부 확인 + 체크 해제
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
-  missing: string;
+  hasSelected: Boolean;       // 선택 여부
+  hasSelectedIndex: Integer;  // 선택 여부 인덱스
+  missing: string;            // 설치 여부
+  missingIndex: Integer;      // 설치 여부 인덱스
 begin
   Result := True;
   
   if CurPageID = wpSelectTasks then
   begin
+    // 1. 설치할 버전이 하나도 선택되지 않은 경우
+    hasSelected := False;
+    for hasSelectedIndex := 0 to WizardForm.TasksList.Items.Count - 1 do
+    begin
+      if WizardForm.TasksList.Checked[hasSelectedIndex] then
+      begin
+        hasSelected := True;
+        Break;
+      end;
+    end;
+    if not hasSelected then
+    begin
+      MsgBox('하나 이상의 Revit 버전을 선택하세요.', mbError, MB_OK);
+      Result := False;
+      Exit;
+    end;
+    
+    // 2. 선택한 Revit 버전 중 실제로 설치되어 있지 않은 버전은 체크 해제하고 사용자에게 안내
     missing := '';
   
     if IsTaskSelected('r21') and not IsAddinsFolderExists('2021') then
+    begin
+      missingIndex := GetTaskIndexByName('Revit 2021 Add-in 설치');
+      if missingIndex <> -1 then WizardForm.TasksList.Checked[missingIndex] := False;
       missing := missing + '- Revit 2021' + #13#10;
+    end;
+    
     if IsTaskSelected('r22') and not IsAddinsFolderExists('2022') then
+    begin
+      missingIndex := GetTaskIndexByName('Revit 2022 Add-in 설치');
+      if missingIndex <> -1 then WizardForm.TasksList.Checked[missingIndex] := False;
       missing := missing + '- Revit 2022' + #13#10;
+    end;
+    
     if IsTaskSelected('r23') and not IsAddinsFolderExists('2023') then
+    begin
+      missingIndex := GetTaskIndexByName('Revit 2023 Add-in 설치');
+      if missingIndex <> -1 then WizardForm.TasksList.Checked[missingIndex] := False;
       missing := missing + '- Revit 2023' + #13#10;
+    end;
+    
     if IsTaskSelected('r24') and not IsAddinsFolderExists('2024') then
+    begin
+      missingIndex := GetTaskIndexByName('Revit 2024 Add-in 설치');
+      if missingIndex <> -1 then WizardForm.TasksList.Checked[missingIndex] := False;
       missing := missing + '- Revit 2024' + #13#10;
+    end;
+    
     if IsTaskSelected('r25') and not IsAddinsFolderExists('2025') then
+    begin
+      missingIndex := GetTaskIndexByName('Revit 2025 Add-in 설치');
+      if missingIndex <> -1 then WizardForm.TasksList.Checked[missingIndex] := False;
       missing := missing + '- Revit 2025' + #13#10;
+    end;
+    
+    if IsTaskSelected('r26') and not IsAddinsFolderExists('2026') then
+    begin
+      missingIndex := GetTaskIndexByName('Revit 2026 Add-in 설치');
+      if missingIndex <> -1 then WizardForm.TasksList.Checked[missingIndex] := False;
+      missing := missing + '- Revit 2026' + #13#10;
+    end;
     
     if missing <> '' then
     begin
-      MsgBox('다음 Revit 버전이 설치되어 있지 않아 설치를 중단합니다:' + #13#10 + #13#10 + missing, mbError, MB_OK);
+      MsgBox('다음 Revit 버전이 설치되어 있지 않아 체크 해제되었습니다:' + #13#10 + #13#10 + missing, mbError, MB_OK);
       Result := False;
     end;
   end;
@@ -95,7 +173,7 @@ var
 begin
   if CurStep = ssPostInstall then
   begin
-    AppVer := '0.22';
+    AppVer := '0.5';
     AppName := 'Revit Add-in Installer Test';
     LogPath := ExpandConstant('{userappdata}') + '\Autodesk\Revit\Addins\' + AppName + 'install_log.txt';
     TimeStamp := GetDateTimeString('yyyy-mm-dd hh:nn:ss','-',':');
@@ -111,6 +189,8 @@ begin
       LogText := LogText + 'Revit 2024 ' + AppName + ' (' + AppVer + ') 설치됨' + #13#10;
     if IsTaskSelected('r25') then
       LogText := LogText + 'Revit 2025 ' + AppName + ' (' + AppVer + ') 설치됨' + #13#10;
+    if IsTaskSelected('r26') then
+      LogText := LogText + 'Revit 2026 ' + AppName + ' (' + AppVer + ') 설치됨' + #13#10;
       
     ForceDirectories(ExtractFilePath(LogPath));
     SaveStringToFile(LogPath, LogText, True);
